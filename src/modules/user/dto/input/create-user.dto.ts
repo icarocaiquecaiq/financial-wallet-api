@@ -3,10 +3,14 @@ import {
   IsString,
   IsStrongPassword,
   MaxLength,
+  Matches,
 } from 'class-validator';
 
 export class CreateUserDTO {
   @IsString()
+  @Matches(/^[a-zA-Z0-9_]+$/, {
+    message: 'Username must contain only letters, numbers, and underscores',
+  })
   username: string;
 
   @IsEmail()
