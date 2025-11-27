@@ -11,12 +11,60 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  username  String?  @unique 
+  username  String?  @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
+  wallet    Wallet?
+}
+
+model Wallet {
+  id                   Int           @id @default(autoincrement())
+  userId               Int           @unique
+  user                 User          @relation(fields: [userId], references: [id])
+  balanceInCents       Int           @default(0)
+  version              Int           @default(1)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  sentTransactions     Transaction[] @relation("SentTransactions")
+  receivedTransactions Transaction[] @relation("ReceivedTransactions")
+}
+
+enum TransactionType {
+  DEPOSIT
+  TRANSFER
+  REVERSAL
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  REVERSED
+  FAILED
+}
+
+model Transaction {
+  id                    Int               @id @default(autoincrement())
+  type                  TransactionType
+  status                TransactionStatus @default(PENDING)
+  amountInCents         Int
+  beforeBalanceInCents  Int? // Snapshot for audit
+  afterBalanceInCents   Int? // Snapshot for audit
+  senderWalletId        Int?
+  senderWallet          Wallet?           @relation("SentTransactions", fields: [senderWalletId], references: [id])
+  receiverWalletId      Int?
+  receiverWallet        Wallet?           @relation("ReceivedTransactions", fields: [receiverWalletId], references: [id])
+  originalTransactionId Int?              @unique // 1:1 for reversal
+  originalTransaction   Transaction?      @relation("TransactionReversal", fields: [originalTransactionId], references: [id])
+  reversalTransaction   Transaction?      @relation("TransactionReversal")
+  idempotencyKey        String?           @unique
+  revertExpiresAt       DateTime?
+  description           String?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
 }

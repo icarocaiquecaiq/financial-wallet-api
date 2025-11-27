@@ -33,7 +33,6 @@ export class AuthService {
   async validateUser(params: TLogin): Promise<TUserWithoutPassword> {
     try {
       const { login, password } = params;
-      // Check if login is email or username
       const user = await this.findByLogin(login);
 
       if (!user) throw new NotFoundException(this.MESSAGE_ERROR_USER_NOT_FOUND);
@@ -55,9 +54,6 @@ export class AuthService {
         `${AuthService.name}.${this.validateUser.name}`,
       );
 
-      // We don't check for HttpException here because we want validateUser to be agnostic
-      // The Strategies will handle the exceptions (Unauthorized usually)
-      // But re-throwing HttpException is good practice if we had specific ones
       if (e.status) throw e;
 
       throw new InternalServerErrorException(this.MESSAGE_ERROR_UNKNOWN_ERROR);
@@ -86,10 +82,8 @@ export class AuthService {
 
   async register(user: TCreateUser): Promise<RegisterResponse> {
     try {
-      // Delegate creation to UserService (Single Responsibility Principle)
       const createdUser = await this.userService.create(user);
 
-      // Generate token
       const { access_token } = await this.login(createdUser);
 
       return {
@@ -103,7 +97,6 @@ export class AuthService {
         `${AuthService.name}.${this.register.name}`,
       );
 
-      // Propagate exceptions from UserService (e.g. BadRequest if user exists)
       throw e;
     }
   }

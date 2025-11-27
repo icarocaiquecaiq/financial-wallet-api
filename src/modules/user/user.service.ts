@@ -53,11 +53,34 @@ export class UserService {
     }
   }
 
+  async findByEmail(email: string): Promise<TUserWithoutPassword | null> {
+    try {
+      return await this.prisma.user.findUnique({
+        where: { email },
+        select: userSelect,
+      });
+    } catch (e) {
+      this.logger.error(e.message, e.stack, `${UserService.name}.findByEmail`);
+      throw new InternalServerErrorException(this.ERROR_FIND_USER);
+    }
+  }
+
+  async deactivateById(id: number): Promise<void> {
+    try {
+      await this.prisma.user.update({
+        where: { id },
+        data: { isActive: false },
+      });
+    } catch (e) {
+      this.logger.error(e.message, e.stack, `${UserService.name}.deleteById`);
+      throw new InternalServerErrorException(this.ERROR_UPDATE_USER);
+    }
+  }
+
   async create(params: TCreateUser): Promise<TUserWithoutPassword> {
     try {
       const { username, email, password } = params;
 
-      // Fail Fast: Check if user already exists
       const existingUser = await this.prisma.user.findFirst({
         where: { OR: [{ email }, { username }] },
       });
@@ -74,6 +97,12 @@ export class UserService {
           username,
           email,
           password: hashedPassword,
+          wallet: {
+            create: {
+              balanceInCents: 0,
+              version: 1,
+            },
+          },
         },
         select: userSelect,
       });
@@ -86,18 +115,6 @@ export class UserService {
         throw e;
       }
       throw new InternalServerErrorException(this.ERROR_CREATE_USER);
-    }
-  }
-
-  async deactivateById(id: number): Promise<void> {
-    try {
-      await this.prisma.user.update({
-        where: { id },
-        data: { isActive: false },
-      });
-    } catch (e) {
-      this.logger.error(e.message, e.stack, `${UserService.name}.deleteById`);
-      throw new InternalServerErrorException(this.ERROR_UPDATE_USER);
     }
   }
 }

@@ -12,8 +12,6 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Body() loginDto: LoginDTO, @Request() req) {
-    // The local strategy will handle the validation using the Body fields 'login' and 'password'
-    // req.user is populated by the LocalStrategy return value
     return this.authService.login(req.user);
   }
 
