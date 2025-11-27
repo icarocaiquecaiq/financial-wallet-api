@@ -10,6 +10,9 @@ RUN npm install
 
 COPY . .
 
+# Define variável dummy para o build (necessário para o prisma.config.ts)
+ENV DATABASE_URL="mysql://dummy:dummy@localhost:3306/dummy"
+
 # Gera o cliente Prisma
 RUN npx prisma generate
 
@@ -37,5 +40,5 @@ COPY --from=builder /usr/src/app/node_modules/.prisma ./node_modules/.prisma
 EXPOSE 3000
 
 # Script de inicialização
-CMD ["sh", "-c", "echo '⏳ Aguardando MySQL...' && while ! nc -z mysql 3306; do sleep 1; done && echo '✅ MySQL conectado!' && echo '🛠️ Aplicando migrations...' && npx prisma db push --accept-data-loss && echo '🚀 Iniciando aplicação...' && node dist/main"]
+CMD ["sh", "-c", "echo '⏳ Aguardando MySQL...' && while ! nc -z mysql 3306; do sleep 1; done && echo '✅ MySQL conectado!' && echo '🛠️ Aplicando migrations...' && npx prisma db push --accept-data-loss && echo '🚀 Iniciando aplicação...' && node dist/src/main"]
 
