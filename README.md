@@ -1,98 +1,204 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Financial Wallet API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+> **⚠️ Nota Importante:** Este repositório contém apenas a **API backend** do projeto. A **interface frontend** está disponível em um repositório separado: [Fake News Detector](https://github.com/icarocaiquecaiq/fake-news-detector.git)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Descrição
 
-## Description
+Esta é uma API RESTful desenvolvida em NestJS para simular uma carteira financeira. O sistema permite cadastro de usuários, autenticação via JWT e operações financeiras como depósito, transferência entre usuários e reversão de transações.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Requisitos do Projeto
 
-## Project setup
+- **Cadastro e Autenticação**: Criação de conta e login (email ou username) com JWT.
+- **Carteira Digital**: Todo usuário possui uma carteira criada automaticamente.
+- **Operações Financeiras**:
+  - Depósito (com suporte a idempotência).
+  - Transferência (validação de saldo, atômica e segura).
+  - Reversão (estorno de transações dentro de um prazo limite).
+- **Segurança**:
+  - Senhas criptografadas com Bcrypt.
+  - Rotas protegidas por Guardas JWT.
+  - Validação de dados com DTOs.
+- **Arquitetura**:
+  - Padrão Modular do NestJS.
+  - SOLID Principles.
+  - Tratamento robusto de erros.
+
+## Tecnologias Utilizadas
+
+- [NestJS](https://nestjs.com/) - Framework Node.js
+- [Prisma ORM](https://www.prisma.io/) - Database ORM
+- [Docker](https://www.docker.com/) - Containerização
+- [MySQL](https://www.mysql.com/) - Banco de Dados (via Docker)
+- [Jest](https://jestjs.io/) - Testes Automatizados
+
+## Como Rodar
+
+### Pré-requisitos
+
+- Docker e Docker Compose instalados.
+- Node.js (opcional, se quiser rodar fora do Docker).
+
+### Passos
+
+1. **Clone o repositório:**
+
+   ```bash
+   git clone <url-do-repositorio>
+   cd financial-wallet-api
+   ```
+
+2. **Crie o arquivo de ambiente:**
+   Crie um arquivo `.env` na raiz do projeto (use o `.env.example` se houver, ou o modelo abaixo):
+
+   ```env
+   DATABASE_URL="mysql://root:root@db:3306/financial-wallet"
+   JWT_SECRET="sua-chave-secreta-super-segura"
+   ```
+
+3. **Suba a aplicação com Docker:**
+   ```bash
+   docker compose up --build
+   ```
+   A aplicação estará disponível em `http://localhost:3000`.
+
+### Documentação da API (Postman)
+
+Você pode acessar a documentação completa e testar as rotas através da nossa coleção do Postman:
+
+[**Acessar Documentação Postman**](https://.postman.co/workspace/My-Workspace~242610de-a161-451d-8365-06c59867d4a9/collection/39371881-788d821f-7451-4813-83fa-dee91ca8e983?action=share&creator=39371881)
+
+## Funcionalidades Principais
+
+### Autenticação
+
+- `POST /auth/register`: Cria usuário e retorna token.
+- `POST /auth/login`: Autentica usuário (email/username) e retorna token.
+
+### Carteira (Requer Token Bearer)
+
+- `GET /wallet/balance`: Consulta saldo atual.
+- `GET /wallet/transactions`: Histórico de transações.
+- `POST /wallet/deposit`: Realiza um depósito.
+- `POST /wallet/transfer`: Transfere valor para outro usuário.
+- `POST /wallet/revert/:id`: Solicita estorno de uma transação.
+
+## Testes
+
+Para rodar os testes automatizados (unitários e integração):
 
 ```bash
-$ npm install
+# Rodar testes de integração
+npm run test:e2e
 ```
 
-## Compile and run the project
+## Diferenciais Técnicos
 
-```bash
-# development
-$ npm run start
+Este projeto foi desenvolvido com foco em **segurança**, **precisão financeira** e **resiliência**. Abaixo estão os principais diferenciais técnicos implementados:
 
-# watch mode
-$ npm run start:dev
+### 1. **Armazenamento de Valores em Centavos (Integer)**
 
-# production mode
-$ npm run start:prod
-```
+**Por quê?** Tipos `Float` ou `Decimal` podem causar erros de arredondamento em operações financeiras, levando a inconsistências e perda de precisão.
 
-## Run tests
+**Solução:** Todos os valores monetários são armazenados como **inteiros** (em centavos). Por exemplo, R$ 10,50 é armazenado como `1050`.
 
-```bash
-# unit tests
-$ npm run test
+**Benefício:** Precisão absoluta em cálculos financeiros, facilidade de implementação, evitando bugs críticos relacionados a arredondamento.
 
-# e2e tests
-$ npm run test:e2e
+fonte: https://www.moderntreasury.com/journal/floats-dont-work-for-storing-cents
 
-# test coverage
-$ npm run test:cov
-```
+### 2. **Controle de Concorrência Otimista (Versioning)**
 
-## Deployment
+**Por quê?** Em sistemas financeiros, múltiplas requisições simultâneas podem causar **race conditions** (condições de corrida), resultando em saldos incorretos.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+**Solução:** Um campo `version` na tabela `Wallet`. Cada operação incrementa a versão e valida que a versão atual corresponde à esperada antes de atualizar.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+**Benefício:** Garante integridade dos dados mesmo em ambientes de alta concorrência, rejeitando operações conflitantes.
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+### 3. **Idempotência em Transações**
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**Por quê?** Requisições duplicadas (ex: falhas de rede, retry automático) podem gerar depósitos ou transferências duplicadas.
 
-## Resources
+**Solução:** Implementamos `idempotencyKey` único para cada operação. Se a mesma chave for enviada novamente, o sistema retorna a transação original sem criar duplicatas.
 
-Check out a few resources that may come in handy when working with NestJS:
+**Benefício:** Operações seguras mesmo em cenários de falha, prevenindo cobranças ou créditos duplicados.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### 4. **Janela de Reversão (revertExpiresAt)**
 
-## Support
+**Por quê?** Sistemas financeiros precisam permitir estornos, mas não indefinidamente, para evitar fraudes e garantir auditoria.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**Solução:** Cada transação possui um campo `revertExpiresAt` (padrão: 30 dias). Após esse prazo, a transação não pode mais ser revertida.
 
-## Stay in touch
+**Benefício:** Equilíbrio entre flexibilidade para correção de erros e segurança contra fraudes históricas.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### 5. **Transações Atômicas (ACID)**
 
-## License
+**Por quê?** Operações financeiras envolvem múltiplas etapas (débito, crédito, criação de registro). Se uma falhar, o sistema pode ficar inconsistente.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+**Solução:** Utilizamos `prisma.$transaction` para garantir que todas as operações sejam executadas com sucesso ou todas sejam revertidas.
+
+**Benefício:** Integridade total dos dados, mesmo em cenários de falha parcial.
+
+### 6. **Auditoria Completa de Transações**
+
+**Por quê?** Sistemas financeiros exigem rastreabilidade total para conformidade, depuração e análise.
+
+**Solução:** Cada transação registra:
+
+- `beforeBalanceInCents` e `afterBalanceInCents` (snapshot do saldo antes/depois)
+- `type` (DEPOSIT, TRANSFER, REVERSAL)
+- `status` (PENDING, COMPLETED, REVERSED)
+- `originalTransactionId` (para reversões)
+- `createdAt` (timestamp)
+
+**Benefício:** Histórico imutável e completo de todas as operações, facilitando auditoria e resolução de disputas.
+
+### 7. **Validação de Regras de Negócio Rigorosas**
+
+**Por quê?** Operações financeiras exigem múltiplas validações antes de serem executadas.
+
+**Solução:** Implementamos validações em camadas:
+
+- **DTOs** (Class-validator): Validação de tipos e formatos.
+- **Service Layer**: Regras de negócio (saldo suficiente, usuário existe, não pode transferir para si mesmo, etc.).
+- **Guards**: Autenticação e autorização.
+
+**Benefício:** Prevenção proativa de erros e operações inválidas, com mensagens de erro claras.
+
+### 8. **Tratamento de Erros e Logging Estruturado**
+
+**Por quê?** Erros financeiros precisam ser rastreados e diagnosticados rapidamente.
+
+**Solução:** Implementamos o padrão **Fail Fast** com:
+
+- Mensagens de erro padronizadas e armazenadas como constantes.
+- Logging estruturado com `Logger` do NestJS em todas as operações críticas.
+- Exceptions HTTP específicas (`BadRequestException`, `UnauthorizedException`, etc.).
+
+**Benefício:** Depuração rápida, monitoramento eficiente e melhor experiência do desenvolvedor.
+
+### 9. **Arquitetura Modular e SOLID**
+
+**Por quê?** Sistemas complexos precisam ser escaláveis e fáceis de manter.
+
+**Solução:** O projeto segue os princípios **SOLID**:
+
+- **Single Responsibility**: Cada classe tem uma única responsabilidade.
+- **Open/Closed**: Código aberto para extensão, fechado para modificação.
+- **Liskov Substitution**: Subtipos podem substituir tipos base.
+- **Interface Segregation**: Interfaces específicas em vez de genéricas.
+- **Dependency Inversion**: Dependência de abstrações, não de implementações concretas.
+
+**Benefício:** Código limpo, testável e fácil de evoluir.
+
+### 10. **Segurança Robusta**
+
+**Por quê?** Sistemas financeiros são alvos críticos de ataques.
+
+**Solução:**
+
+- Senhas **hasheadas** com Bcrypt (salt automático).
+- Autenticação **JWT** (stateless).
+- Guards de autenticação em todas as rotas sensíveis.
+- Validação rigorosa de inputs (DTOs).
+- Username sem caracteres especiais (prevenção de injection).
+
+**Benefício:** Proteção contra ataques comuns (SQL Injection, XSS, força bruta, etc.).
