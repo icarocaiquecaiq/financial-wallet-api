@@ -5,13 +5,10 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import {
-  TCreateUser,
-  TUserWithoutPassword,
-  userSelect,
-} from './types/user.types';
+import { TCreateUser, TUserWithoutPassword } from './types/user.types';
 import { PrismaService } from '../infra/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { userSelect } from './user.consts';
 
 @Injectable()
 export class UserService {
@@ -111,9 +108,8 @@ export class UserService {
     } catch (e) {
       this.logger.error(e.message, e.stack, `${UserService.name}.create`);
 
-      if (e instanceof HttpException) {
-        throw e;
-      }
+      if (e.status) throw e;
+
       throw new InternalServerErrorException(this.ERROR_CREATE_USER);
     }
   }

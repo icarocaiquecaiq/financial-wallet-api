@@ -8,7 +8,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
-import { RegisterResponse, TLogin } from './types/auth.types';
+import { TAuthResponse, TLogin } from './types/auth.types';
 import { PrismaService } from '../infra/prisma/prisma.service';
 import { TCreateUser, TUserWithoutPassword } from '../user/types/user.types';
 import { UserService } from '../user/user.service';
@@ -60,7 +60,7 @@ export class AuthService {
     }
   }
 
-  async login(user: TUserWithoutPassword): Promise<{ access_token: string }> {
+  async login(user: TUserWithoutPassword): Promise<{ user: TUserWithoutPassword, access_token: string }> {
     try {
       const { email, id } = user;
 
@@ -68,6 +68,7 @@ export class AuthService {
       const token = this.jwtService.sign(payload);
 
       return {
+        user,
         access_token: token,
       };
     } catch (e) {
@@ -76,11 +77,14 @@ export class AuthService {
         e.stack,
         `${AuthService.name}.${this.login.name}`,
       );
+
+      if (e.status) throw e;
+
       throw new InternalServerErrorException(this.MESSAGE_ERROR_ERROR_TO_LOGIN);
     }
   }
 
-  async register(user: TCreateUser): Promise<RegisterResponse> {
+  async register(user: TCreateUser): Promise<TAuthResponse> {
     try {
       const createdUser = await this.userService.create(user);
 
@@ -97,7 +101,9 @@ export class AuthService {
         `${AuthService.name}.${this.register.name}`,
       );
 
-      throw e;
+      if (e.status) throw e;
+
+      throw new InternalServerErrorException('Error during registration');
     }
   }
 

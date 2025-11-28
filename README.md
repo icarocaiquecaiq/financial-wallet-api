@@ -188,17 +188,3 @@ fonte: https://www.moderntreasury.com/journal/floats-dont-work-for-storing-cents
 - **Dependency Inversion**: Dependência de abstrações, não de implementações concretas.
 
 **Benefício:** Código limpo, testável e fácil de evoluir.
-
-### 10. **Segurança Robusta**
-
-**Por quê?** Sistemas financeiros são alvos críticos de ataques.
-
-**Solução:**
-
-- Senhas **hasheadas** com Bcrypt (salt automático).
-- Autenticação **JWT** (stateless).
-- Guards de autenticação em todas as rotas sensíveis.
-- Validação rigorosa de inputs (DTOs).
-- Username sem caracteres especiais (prevenção de injection).
-
-**Benefício:** Proteção contra ataques comuns (SQL Injection, XSS, força bruta, etc.).

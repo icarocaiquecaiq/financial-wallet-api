@@ -5,7 +5,7 @@ export type TLogin = {
   password: string;
 };
 
-export type RegisterResponse = {
+export type TAuthResponse = {
   user: TUserWithoutPassword;
   access_token: string;
 };
